@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
-#include "xml.h"
+#include "dtd.h"
 
 int main(){
 	FILE* fichier = fopen("dtd.dtd", "r");
