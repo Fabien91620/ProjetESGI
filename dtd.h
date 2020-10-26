@@ -1,5 +1,5 @@
-#ifndef __XML_H__
-#define __XML_H__
+#ifndef __DTD_H__
+#define __DTD_H__
 
 #include <stdlib.h>
 #include <stdio.h>
