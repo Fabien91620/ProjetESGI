@@ -1,4 +1,4 @@
-#include "xml.h"
+#include "dtd.h"
 
 
 bool check_type(FILE* fichier){
