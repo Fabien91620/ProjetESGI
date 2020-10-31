@@ -61,7 +61,7 @@ bool check_tab_xml(FILE* fichier){
 }
 
 //check la balise pére
-bool check_parent_xml(FILE* fichier, xml_t* xml_entree, elementXml_t* element_entree){
+bool check_parent_xml(FILE* fichier, xml_t* xml_entree){
     if(!fichier) return false;
     check_retour_xml(fichier);
     char chaine[100] = {0};
@@ -71,16 +71,16 @@ bool check_parent_xml(FILE* fichier, xml_t* xml_entree, elementXml_t* element_en
     if(charactere != (int)'<') return false;
     charactere = fgetc(fichier);
     while(charactere != (int)'>'){
+        if(charactere == ' ') return false;
         if(charactere != (int)' '){
             chaine[taille] = (char)charactere;
             taille++;
         }
         charactere = fgetc(fichier);
     }
+    elementXml_t* element_entree = xml_entree ->premier_fils;
     element_entree -> name = calloc(taille,sizeof(char));
     strcpy(element_entree->name, chaine);
-    xml_entree ->premier_fils = calloc(taille,sizeof(char));
-    xml_entree ->premier_fils = element_entree;
     return true;
 }
 
@@ -94,6 +94,7 @@ bool check_fils_xml(FILE* fichier){
     if(charactere != (int)'<') return false;
     charactere = fgetc(fichier);
     while(charactere != (int)'>'){
+        if(charactere == ' ') return false;
         if(charactere != (int)' '){
             chaine[taille] = (char)charactere;
             taille++;
@@ -131,6 +132,7 @@ bool check_balise_fin_fils(FILE* fichier){
     if(fgetc(fichier) != (int)'/') return false;
     fseek(fichier, -1,SEEK_CUR);
     while(charactere != (int)'>'){
+        if(charactere == ' ') return false;
         chaine[taille] = (char)charactere;
         taille++;
         charactere = fgetc(fichier);
@@ -184,13 +186,15 @@ char afficher_char(FILE* fichier){
 }
 
 //Permet de d'excuter toute les fonctions qui permet de check un fichier xml
-bool check_xml(FILE* fichier, xml_t* xml_entree, elementXml_t* element_entree){
+bool check_xml(FILE* fichier, xml_t* xml_entree){
     if(!fichier) return false;
-    if(check_debut_xml(fichier) != true) return false;
-    if(check_one_space_xml(fichier) != true) return false;
-    if(check_version_xml(fichier, xml_entree) != true) return false;
-    if(check_parent_xml(fichier, xml_entree, element_entree) != true) return false;
-    if(check_fin_des_fils(fichier) != true) return false;
-    if(check_fin_fichier(fichier)!= true) return false;
+    if(!check_debut_xml(fichier)) return false;
+    if(!check_one_space_xml(fichier)) return false;
+    if(!check_version_xml(fichier, xml_entree)) return false;
+    if(!check_parent_xml(fichier, xml_entree)) return false;
+    if(!check_fin_des_fils(fichier)) return false;
+    if(!check_fin_fichier(fichier)) return false;
+    free(xml_entree);
+    free(xml_entree ->premier_fils);
     return true;
 }
