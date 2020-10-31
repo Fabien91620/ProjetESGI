@@ -13,7 +13,7 @@ int main(){
 
 	dtd_t* dtd = malloc(sizeof(dtd_t));
 
-	printf("%s\n", check_dtd(fichier, dtd)?"dtd type OK\n":"ERROR\n");
+	printf("%s\n", check_dtd(fichier, dtd)?"dtd OK\n":"ERROR\n");
 
 
 
