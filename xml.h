@@ -21,12 +21,22 @@ struct xml{
     elementXml_t* premier_fils;
 };
 
-bool check_xml(FILE* fichier);
+bool check_debut_xml(FILE* fichier);
 bool check_one_space_xml(FILE* fichier);
 bool check_version_xml(FILE* fichier, xml_t* xml_entree);
 bool check_retour_xml(FILE* fichier);
 bool check_parent_xml(FILE* fichier, xml_t* xml_entree, elementXml_t* element_entree);
 bool check_tab_xml(FILE* fichier);
-bool check_fils_xml(FILE* fichier, xml_t* xml_entree, elementXml_t* element_entree);
+bool check_fils_xml(FILE* fichier);
+bool check_donnees(FILE* fichier);
+bool check_balise_fin_fils(FILE* fichier);
+bool check_fin_des_fils(FILE* fichier);
+bool check_fin_fichier(FILE* fichier);
+bool check_ligne(FILE* fichier);
+
+char afficher_char(FILE* fichier);
+
+
+bool check_xml(FILE* fichier, xml_t* xml_entree, elementXml_t* element_entree);
 
 #endif

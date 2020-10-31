@@ -26,15 +26,15 @@ int main(){
     }
     xml_t* xml_entree = malloc(sizeof(xml_t));
     elementXml_t* element_entree = malloc(sizeof(elementXml_t));
-    printf("--%d--\n",check_xml(fichierXml));
-    printf("--%d--\n",check_one_space_xml(fichierXml));
-    printf("--%d--\n",check_version_xml(fichierXml, xml_entree));
-    printf("--%d--\n",check_retour_xml(fichierXml));
-    printf("--%d--\n",check_parent_xml(fichierXml, xml_entree, element_entree));
-    printf("--%d--\n",check_retour_xml(fichierXml));
-    printf("--%d--\n",check_tab_xml(fichierXml));
-    printf("--%d--\n",check_fils_xml(fichierXml, xml_entree, element_entree));
-    printf("%s\n", xml_entree->premier_fils->name);
+    
+    if(check_xml(fichierXml, xml_entree, element_entree)){
+        printf("%s\n", "XML Bon");
+    }
+    else{
+        printf("%s\n", "XML Mauvais");
+    }
+    
+    
     
     
     
