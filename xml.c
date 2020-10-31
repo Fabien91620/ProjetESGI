@@ -1,5 +1,6 @@
 #include "xml.h"
 
+//check la balise de debut d'xml
 bool check_debut_xml(FILE* fichier){
     if(!fichier) return false;
     if(fgetc(fichier) != (int)'<') return false;
@@ -10,6 +11,7 @@ bool check_debut_xml(FILE* fichier){
     return true;
 }
 
+//check les espaces
 bool check_one_space_xml(FILE* fichier){
     if(!fichier) return false;
     if(fgetc(fichier) != (int)' ') return false;
@@ -18,6 +20,7 @@ bool check_one_space_xml(FILE* fichier){
     return true;
 }
 
+//verifie la verison du xml
 bool check_version_xml(FILE* fichier, xml_t* xml_entree){
     if(!fichier) return false;
     char chaine[100] = {0};
@@ -40,13 +43,14 @@ bool check_version_xml(FILE* fichier, xml_t* xml_entree){
     return true;
 }
 
+//Permet de faire un \n
 bool check_retour_xml(FILE* fichier){
     if(!fichier) return false;
     if(fgetc(fichier) != 10) return false;
     return true;
 }
 
-
+//permet de faire les tabulations
 bool check_tab_xml(FILE* fichier){
     if(!fichier) return false;
     if(fgetc(fichier) != (int)' ') return false;
@@ -56,6 +60,7 @@ bool check_tab_xml(FILE* fichier){
     return true;
 }
 
+//check la balise pére
 bool check_parent_xml(FILE* fichier, xml_t* xml_entree, elementXml_t* element_entree){
     if(!fichier) return false;
     check_retour_xml(fichier);
@@ -79,6 +84,7 @@ bool check_parent_xml(FILE* fichier, xml_t* xml_entree, elementXml_t* element_en
     return true;
 }
 
+//check le debut des balise fils
 bool check_fils_xml(FILE* fichier){
     if(!fichier) return false;
     char chaine[100] = {0};
@@ -97,6 +103,7 @@ bool check_fils_xml(FILE* fichier){
     return true;
 }
 
+//verifi les données situées entre les balises
 bool check_donnees(FILE* fichier){
     if(!fichier) return false;
     char chaine[100] = {0};
@@ -113,6 +120,7 @@ bool check_donnees(FILE* fichier){
     return true;
 }
 
+//detecte la balise de fin de ligne du fils
 bool check_balise_fin_fils(FILE* fichier){
     if(!fichier) return false;
     char chaine[100] = {0};
@@ -130,6 +138,7 @@ bool check_balise_fin_fils(FILE* fichier){
     return true;
 }
 
+//check si tout les elements permettant de faire une ligne fils sont bon
 bool check_ligne(FILE* fichier){
     if(!fichier) return false;
     if(check_retour_xml(fichier) != true) return false;
@@ -140,6 +149,7 @@ bool check_ligne(FILE* fichier){
     return true;
 }
 
+//parcoure toute les balise fils et retourne true des qu'il fini
 bool check_fin_des_fils(FILE* fichier){
     if(!fichier) return false;
     while(check_ligne(fichier) != false){
@@ -149,6 +159,7 @@ bool check_fin_des_fils(FILE* fichier){
     return true;
 }
 
+//Check si c'est la balise de fin du fichier xml
 bool check_fin_fichier(FILE* fichier){
     if(!fichier) return false;
     char chaine[100] = {0};
@@ -172,6 +183,7 @@ char afficher_char(FILE* fichier){
     return fgetc(fichier);
 }
 
+//Permet de d'excuter toute les fonctions qui permet de check un fichier xml
 bool check_xml(FILE* fichier, xml_t* xml_entree, elementXml_t* element_entree){
     if(!fichier) return false;
     if(check_debut_xml(fichier) != true) return false;
