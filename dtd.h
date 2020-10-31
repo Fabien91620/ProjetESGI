@@ -6,22 +6,32 @@
 #include <stdbool.h>
 #include <string.h>
 
+typedef struct parametre parametre_t;
 typedef struct element element_t;
 typedef struct dtd dtd_t;
 
+
+struct parametre{
+	char name;
+	enum{
+		RIEN,
+		PLUS,
+		ETOILE
+	}nombre;
+};
+
 struct element{
 	char name;
-	element_t* fils;
-	element_t* frere;
+	parametre_t* parametres;
+	element_t* element_fils;
+	element_t* element_suivant;
 };
 
 struct dtd{
 	char* name;
-	element_t* premier_fils;
+	element_t* premier_element;
 };
 
-bool check_type(FILE* fichier);
-bool check_one_space(FILE* fichier);
-bool check_name(FILE* fichier, dtd_t* dtd_entree);
+bool check_dtd(FILE* fichier, dtd_t* dtd);
 
 #endif
