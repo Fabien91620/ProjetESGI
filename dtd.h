@@ -6,43 +6,33 @@
 #include <stdbool.h>
 #include <string.h>
 
-typedef struct parametreElement parametreElement_t;
+#define ERROR_ALLOCATION {printf("Erreur lors de l'allocation mémoire.\nLe programme va s'arreter.\n");exit(0);}
+
 typedef struct element element_t;
 typedef struct dtd dtd_t;
 typedef enum typeElement typeElement_t;
-typedef enum typeParametreSimple typeParametreSimple_t;
-typedef struct nomParametreArborescent nomParametreArborescent_t;
+typedef struct parametres parametres_t;
 
 enum typeElement{
-	SIMPLE,
-	ARBORESCENT
-};
-
-enum typeParametreSimple{
-	PCDATA,
-	CDDATA,	//...
-};
+	PCDATA,	//	données textuelles de type (#PCDATA)
+	SOUS_ELEMENT	//	un autre élément pourra servir de type
+};//Aucun type d'élément ne peut être déclaré plus d'une fois.
 		
-struct nomParametreArborescent{
+struct parametres{
 	char* name;
 	enum{
-		UN, 	
+		UN,				// rien
 		UN_OU_PLUS,		// +
-		ZERO_OU_PLUS	// *
-	}nombreDeFils;
-
-	nomParametreArborescent_t* suivant;
+		ZERO_OU_PLUS,	// *
+		ZERO_OU_UN		// ?
+	}type;
 };
 
 struct element{
 	char* name;
 	typeElement_t type;
-
-	union{
-		typeParametreSimple_t parametreSimple;
-		nomParametreArborescent_t* nomParametreArborescent;
-	}parametre;
-
+	parametres_t parametres;
+	element_t* premier_fils;
 	element_t* element_suivant;
 };
 
