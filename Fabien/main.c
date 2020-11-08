@@ -22,6 +22,10 @@ int main(){
     }
     afficheXML(xml);
 
+    destroy(xml);
+    
     fclose(fichierXml);
-	return 0;
+
+
+	return EXIT_SUCCESS;
 }

@@ -7,8 +7,7 @@
 #include <string.h>
 #include "xml.h"
 
-#define ERROR_ALLOCATION {printf("Erreur lors de l'allocation mémoire.\nLe programme va s'arreter.\n");exit(0);}
-
+#define ERROR_ALLOCATION {printf("Erreur lors de l'allocation mémoire.\nLe programme va s'arreter.\n");}
 
 typedef struct element_xml elementXml_t;
 typedef struct xml xml_t;
@@ -38,7 +37,7 @@ struct xml{
 
 char afficher_char(FILE* fichier);
 void afficheXML(xml_t* xml_entree);
-
+void destroy(xml_t* xml);
 bool check_xml(FILE* fichier, xml_t* xml_entree);
 
 #endif

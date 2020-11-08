@@ -1,6 +1,6 @@
 #include "xml.h"
 
-bool check_element_data(FILE* fichier, char** data){
+bool check_element_data(FILE* fichier, char** data){ 
     if(!fichier) return false;
     char chaine[100] = {0};
     int taille = 0;
@@ -15,7 +15,8 @@ bool check_element_data(FILE* fichier, char** data){
     fseek(fichier, -1, SEEK_CUR);
     if(taille){
         *data = malloc(sizeof(char)*(taille+1));
-        strcpy(*data, chaine);
+        if(!*data)ERROR_ALLOCATION;
+        strcpy(*data, chaine); 
     }
     return true;
 }
@@ -41,7 +42,6 @@ bool check_balises_close(FILE* fichier, char* chaine, int taille){
         if(fgetc(fichier) != (int)'/') return false;
         char chaine2[100] = {0};
         fgets(chaine2, taille+1, fichier);
-         
         if(strcmp(chaine, chaine2)) {
             return false;
         }
@@ -73,20 +73,42 @@ bool check_element(FILE* fichier, xml_t* xml, elementXml_t** element){
     }
     char* data = NULL;
     if(!check_element_data(fichier, &data)) return false;
+
+
     // Imagine qu'il n'y a pas qu'un seul element pere - il faut traiter ce cas
-    (*element) = malloc(sizeof(elementXml_t));    
-    if(!*element) ERROR_ALLOCATION;
+    (*element) = malloc(sizeof(elementXml_t));
+
+    if(!*element){
+        ERROR_ALLOCATION;
+        free(data);
+        exit(1);
+    }
     (*element) -> name = NULL;
     (*element) -> name = malloc(sizeof(char) * (taille + 1));
-    if(!(*element) -> name) ERROR_ALLOCATION;
+    if(!(*element) -> name){
+        ERROR_ALLOCATION;
+        free(data);
+        free(*element);
+        exit(1);
+    }
     strcpy( (*element) -> name, chaine);
     if(data){
         (*element) -> type = PCDATA;
-        (*element) -> data = malloc(sizeof(char) * (strlen(data) + 1));
-        if(!(*element) -> data) ERROR_ALLOCATION;
-        strcpy( (*element) -> data, data);
-        if(!check_balises_close(fichier, chaine, taille)) return false;
-        if(fgetc(fichier) != (int)'\n') return false;
+        (*element) -> data = data;
+        if(!(*element) -> data){
+            ERROR_ALLOCATION;
+            free((*element) -> data);
+            free((*element) -> name);
+            free(*element);
+            exit(1);
+        }
+        if(!check_balises_close(fichier, chaine, taille)){
+            free((*element) -> data );
+            free((*element) -> name );
+            free(*element);
+            return false;
+        }
+        if(fgetc(fichier) != (int)'\n') return false; //
     }
     else{
         (*element) -> type = SOUS_ELEMENT;
@@ -144,13 +166,18 @@ bool check_xml_XML(FILE* fichier){
 bool check_xml(FILE* fichier, xml_t* xml){
     if(!fichier) return false;
     if(!xml) return false;
-    if(fgetc(fichier) != (int)'<') return false;
-    if(fgetc(fichier) != (int)'?') return false;
-    if(!check_xml_XML(fichier)) return false;
-    if(!check_xml_version(fichier, xml)) return false;
-    if(fgetc(fichier) != (int)'?') return false;
-    if(fgetc(fichier) != (int)'>') return false;
-    if(fgetc(fichier) != (int)'\n') return false;
+    bool RETOUR = true;
+    if(fgetc(fichier) != (int)'<') RETOUR = false;
+    if(!RETOUR || !fgetc(fichier) == (int)'?') RETOUR = false;
+    if(!RETOUR || !check_xml_XML(fichier)) RETOUR = false;
+    if(!RETOUR || !check_xml_version(fichier, xml)) RETOUR = false;
+    if(!RETOUR || !fgetc(fichier) == (int)'?') RETOUR = false;
+    if(!RETOUR || !fgetc(fichier) == (int)'>') RETOUR = false;
+    if(!RETOUR || !fgetc(fichier) == (int)'\n') RETOUR = false;
+    if(!RETOUR){
+        destroy(xml);
+        exit(1);
+    }
     if(!check_element(fichier, xml, &xml -> premier_fils)) return false;
     return true;
 }
@@ -163,7 +190,7 @@ void afficheXML(xml_t* xml){
      elementXml_t* itterator_Classroom;
     if(itterator_Classrooms){
         printf("%s\n", itterator_Classrooms-> name);
-        if(itterator_Classrooms -> type = PCDATA) printf("%s\n", itterator_Classrooms-> data);
+        if(itterator_Classrooms -> type == PCDATA) printf("%s\n", itterator_Classrooms-> data);
         else{
             itterator_Classroom = itterator_Classrooms -> premier_fils;
             while(itterator_Classroom){
@@ -174,8 +201,28 @@ void afficheXML(xml_t* xml){
                 }
             }    
         }
-
         // itterator_Classrooms = itterator_Classrooms -> premier_frere; 
     }
+}
 
+void destroy_elements(elementXml_t* e){
+    if(!e) return;
+    if(e -> premier_fils && e -> type == SOUS_ELEMENT){
+        destroy_elements(e-> premier_fils);
+    }
+    if(e -> premier_frere){
+        destroy_elements(e-> premier_frere);
+    }
+    if(e -> type == PCDATA){
+        free(e -> data);
+    }
+        free(e -> name);
+        free(e);
+}
+
+void destroy(xml_t* xml){
+    if(!xml) return;
+    if(xml -> premier_fils) destroy_elements(xml -> premier_fils);
+    free(xml -> version);
+    free(xml);
 }
