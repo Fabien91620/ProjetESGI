@@ -4,7 +4,7 @@
 int LineXmlFile = 1;
 
 // ***************************************************************
-// ****Fonctions de Libération de mémoire (Garbage Collectors)****
+// ****Fonctions de Libération de mémoire (Garbage Collector)****
 
 //  Libèrer un élément, ses sous-éléments et les élément suivants
 void destroyElements(xmlElement_t* e){
