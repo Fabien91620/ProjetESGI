@@ -62,7 +62,7 @@ void skip(FILE* filePointer, int toSkip){
     if(character != EOF)fseek(filePointer, -1, SEEK_CUR);
 }
 
-//  Ajouter un élément suivant à un élément (comme frere ou element suivant)
+//  Ajouter un élément suivant à un élément (comme frere ou élément suivant)
 void addNextXmlElementToXmlElement(xmlElement_t* e, xmlElement_t* elementToAdd){
     if(!e || !elementToAdd) return;
     xmlElement_t* itterator = e -> nextElement;

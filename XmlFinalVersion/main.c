@@ -2,12 +2,12 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
-#include "xml/xml.h"
+#include "xml.h"
 
 int main(){
-    FILE* fichierXml = fopen("xml/xml.xml", "r");
+    FILE* fichierXml = fopen("xml.xml", "r");
     if(!fichierXml){
-        printf("%s\n", "Erreur lors de l'ouverture du ficher xml !\nLe programme va s'arreter");
+        printf("%s\n", "Erreur lors de l'ouverture du ficher xml, Vérifier le chemin de votre fichier !\nLe programme va s'arreter.");
         exit(1);
     }
     xml_t* xml = checkXml(fichierXml);
