@@ -329,7 +329,7 @@ xml_t* checkXml(FILE* filePointer){
     xmlElement_t* itterator = (*xml) -> firstXmlElement;
     int character, character2;
     if(itterator) xml_v -> elementsNumber ++;
-    while(itterator && (character = fgetc(filePointer))!=(int)'>' && (character2 = fgetc(filePointer))!=EOF){
+    while(noError && itterator && (character = fgetc(filePointer))!=(int)'>' && (character2 = fgetc(filePointer))!=EOF){
         fseek(filePointer, -2, SEEK_CUR);
         itterator = (xmlElement_t*)NULL;
         skipSpacesTabsLinesBreak;
