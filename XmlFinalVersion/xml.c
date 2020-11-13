@@ -123,11 +123,11 @@ bool checkXmlElementData(FILE* filePointer, char** data, int* size){
 }
 
 //  Vérifier et récupérer le nom d'un élément
-bool checkElementName(FILE* filePointer, char** name){
+bool checkElementName(FILE* filePointer, char** name, bool* FormatError){
     char string[characterStringSize] = {0};
     int size = 0;
     int character = fgetc(filePointer);
-    while(character != EOF && ((character >= (int)'a' && character <= (int)'z') || (character >= (int)'A' && character <= (int)'Z') || character == (int)'-'|| character == (int)'_' || character == (int)'.')){
+    while(character != EOF && ((character >= (int)'a' && character <= (int)'z') || (character >= (int)'A' && character <= (int)'Z')|| (character >= (int)'0' && character <= (int)'9') || character == (int)'-'|| character == (int)'_' || character == (int)'.')){
         errorLineFile;
         string[size] = (char)character;
         size++;
@@ -135,8 +135,12 @@ bool checkElementName(FILE* filePointer, char** name){
     }
     errorLineFile;
     if(character != (int)'>'){
+        fseek(filePointer, -1, SEEK_CUR);
         skipSpacesTabsLinesBreak;   
-        if(fgetc(filePointer) != (int)'>') return false;
+        if(fgetc(filePointer) != (int)'>'){
+            *FormatError = true;
+            return false;
+        }
     }
     if(size){
         *name = (char*)malloc(sizeof(char)*(size+1));
@@ -254,7 +258,9 @@ bool check_element(FILE* filePointer, xml_t** xml, xmlElement_t** element, int d
         ERROR_ALLOCATION;
     }
     char* name = (char*)NULL;
-    if(!checkElementName(filePointer, &name)){
+    bool FormatError = false;
+    if(!checkElementName(filePointer, &name, &FormatError)){
+        if(FormatError) return false;
         fclose(filePointer);
         if((*xml) -> firstXmlElement != (*element)) destroyElements(*element);
         destroy(xml);
