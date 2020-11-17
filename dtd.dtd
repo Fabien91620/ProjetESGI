@@ -1,6 +1,0 @@
-<!DOCTYPE ESGI [
-<!ELEMENT classrooms (classroom)>
-<!ELEMENT classroom (#PCDATA)>
-<!ELEMENT classroomZ (classroomz)>
-<!ELEMENT classroomz (#PCDATA)>
-]>

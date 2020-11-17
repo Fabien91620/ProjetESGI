@@ -1,4 +1,4 @@
-#include "xml.h"
+#include "../headers/xml.h"
 
 //  Numéro de la ligne d'érreur en cas d'érreur dans le fichier
 int LineXmlFile = 1;
@@ -6,34 +6,20 @@ int LineXmlFile = 1;
 // ***************************************************************
 // ****Fonctions de Libération de mémoire (Garbage Collector)****
 
-//  Libèrer un élément, ses sous-éléments et les élément suivants
-void destroyElements(xmlElement_t* e){
+//  Libèrer un élément XML, ses sous-éléments et les élément suivants
+void destroyXmlElements(xmlElement_t* e){
     if(!e) return;
-    if(e -> subXmlElement && e -> elementType == SUBELEMENT_TYPE){
-        destroyElements(e-> subXmlElement);
-    }
-    if(e -> nextElement){
-        destroyElements(e-> nextElement);
-    }
-    if(e -> elementType == PCDATA_TYPE){
-        free(e -> data);
-        e -> data = (char*)NULL;
-    }
+    destroyXmlElements(e-> subXmlElement);
+    destroyXmlElements(e-> nextElement);
+    if(e -> elementType == PCDATA_TYPE) free(e -> data);
     free(e -> name);
-    e -> name = (char*)NULL;
     free(e);
-    e -> subXmlElement = (xmlElement_t*)NULL;
-    e -> nextElement = (xmlElement_t*)NULL;
-    e = (xmlElement_t*)NULL;              
-}
+ }
 
-//  Libèrer un xml
-void destroy(xml_t** xml){
+//  Libèrer un XML
+void destroyXml(xml_t** xml){
     if(!(*xml)) return;
-    if((*xml) -> firstXmlElement){
-        destroyElements((*xml) -> firstXmlElement);
-        (*xml) -> firstXmlElement = (xmlElement_t*)NULL;
-    }
+    destroyXmlElements((*xml) -> firstXmlElement);
     free((*xml) -> version);
     free(*xml);
     (*xml) = (xml_t*)NULL;
@@ -50,19 +36,19 @@ void skip(FILE* filePointer, int toSkip){
     int character = fgetc(filePointer);
     if(toSkip == (int)'*'){
         while(character == (int)' ' || character == (int)'\n' || character == (int)'\t'){
-            errorLineFile;
+            errorLineXmlFile;
             character = fgetc(filePointer);
         }
     }else{
         while(character == toSkip){
-            errorLineFile;
+            errorLineXmlFile;
             character = fgetc(filePointer);
         }
     }
     if(character != EOF)fseek(filePointer, -1, SEEK_CUR);
 }
 
-//  Ajouter un élément suivant à un élément (comme frere ou élément suivant)
+//  Ajouter un élément suivant à un élément XML (comme frere ou élément suivant)
 void addNextXmlElementToXmlElement(xmlElement_t* e, xmlElement_t* elementToAdd){
     if(!e || !elementToAdd) return;
     xmlElement_t* itterator = e -> nextElement;
@@ -76,7 +62,7 @@ void addNextXmlElementToXmlElement(xmlElement_t* e, xmlElement_t* elementToAdd){
     itterator -> nextElement = elementToAdd;
 }
 
-//  Ajouter un sous élément à un élément (comme fils)
+//  Ajouter un sous élément XML à un élément XML (comme fils)
 void addSubXmlElementToXmlElement(xmlElement_t* e, xmlElement_t* elementToAdd){
     if(!e || !elementToAdd || e->elementType != SUBELEMENT_TYPE) return;
     if(!e -> subXmlElement){
@@ -88,15 +74,15 @@ void addSubXmlElementToXmlElement(xmlElement_t* e, xmlElement_t* elementToAdd){
     e -> childrenNumber++;
 }
 
-//  Vérifier une balise fermante (exemple : </Classrooms>)
-bool checkClosingTag(FILE* filePointer, char* stringToCompare, int size){
+//  Vérifier une balise fermante d'un élément XML (exemple : </Classrooms>)
+bool checkXmlElementClosingTag(FILE* filePointer, char* stringToCompare, int size){
     if(!filePointer || !stringToCompare || !size) return false;
     if(fgetc(filePointer) != (int)'<') return false;
     if(fgetc(filePointer) != (int)'/') return false;
-    char string[characterStringSize] = {0};
+    char string[characterStringSizeXml] = {0};
     fgets(string, size+1, filePointer);
     if(strcmp(stringToCompare, string)) return false;
-    skipSpacesTabsLinesBreak;
+    skipSpacesTabsLinesBreakXml;
     if(fgetc(filePointer) != (int)'>') return false;
     return true;
 }
@@ -104,11 +90,11 @@ bool checkClosingTag(FILE* filePointer, char* stringToCompare, int size){
 //  Vérifier et récupèrer les données d'un élément de type PCDATA
 bool checkXmlElementData(FILE* filePointer, char** data, int* size){ 
     if(!filePointer) return false;
-    char string[characterStringSize] = {0};
+    char string[characterStringSizeXml] = {0};
     int character = fgetc(filePointer);
     while(character!= EOF && character != (int)'<'){
         if(character == (int)'&') return false;
-        errorLineFile;
+        errorLineXmlFile;
         string[*size] = (char)character;
         if(character != (int)' ' && character != (int)'\n' && character != (int)'\t')(*size)++;
         character = fgetc(filePointer);
@@ -122,21 +108,22 @@ bool checkXmlElementData(FILE* filePointer, char** data, int* size){
     return true;
 }
 
-//  Vérifier et récupérer le nom d'un élément
-bool checkElementName(FILE* filePointer, char** name, bool* FormatError){
-    char string[characterStringSize] = {0};
+//  Vérifier et récupérer le nom d'un élément XML
+bool checkXmlElementName(FILE* filePointer, char** name, bool* FormatError){
+    if(!filePointer) return false;
+    char string[characterStringSizeXml] = {0};
     int size = 0;
     int character = fgetc(filePointer);
     while(character != EOF && ((character >= (int)'a' && character <= (int)'z') || (character >= (int)'A' && character <= (int)'Z')|| (character >= (int)'0' && character <= (int)'9') || character == (int)'-'|| character == (int)'_' || character == (int)'.')){
-        errorLineFile;
+        errorLineXmlFile;
         string[size] = (char)character;
         size++;
         character = fgetc(filePointer);
     }
-    errorLineFile;
+    errorLineXmlFile; // A vérifier
     if(character != (int)'>'){
         fseek(filePointer, -1, SEEK_CUR);
-        skipSpacesTabsLinesBreak;   
+        skipSpacesTabsLinesBreakXml;   
         if(fgetc(filePointer) != (int)'>'){
             *FormatError = true;
             return false;
@@ -144,9 +131,10 @@ bool checkElementName(FILE* filePointer, char** name, bool* FormatError){
     }
     if(size){
         *name = (char*)malloc(sizeof(char)*(size+1));
-        if(!*name)return false;
+        if(!(*name))return false;
         strcpy(*name, string); 
     }else{
+        *FormatError = true;
         return false;
     }
     return true;
@@ -155,21 +143,21 @@ bool checkElementName(FILE* filePointer, char** name, bool* FormatError){
 //  Vérifier et récupérer la version (exemple "1." ou "1.0" ou "2.0" -> valides , ".0" ou "1.2.1" non-valides)
 bool checkXmlVersion(FILE* filePointer, xml_t* xml){
     if(!filePointer || !xml) return false;
-    char string1[8] = {0};
+    char string1[characterStringSizeXml] = {0};
     fgets(string1, 8, filePointer);
     if(strcmp(string1,"version")) return false;
-    skipSpacesTabsLinesBreak;
+    skipSpacesTabsLinesBreakXml;
     if(fgetc(filePointer) != (int)'=') return false;
-    skipSpacesTabsLinesBreak;
+    skipSpacesTabsLinesBreakXml;
     if(fgetc(filePointer) != (int)'"') return false;
-    char string2[characterStringSize]={0};
+    char string2[characterStringSizeXml]={0};
     int size = 0;
     int character = fgetc(filePointer);
     if(character == EOF || character == (int)'"') return false;
     bool comma = false;
     bool characterBefor = false;
     while(character != (int)'"'){
-        errorLineFile;
+        errorLineXmlFile;
         if(character!=(int)'.' && (character > (int)'9' || character < (int)'0')) return false;
         if((character==(int)'.' && !characterBefor) || (character==(int)'.' && comma)) return false;
         if(character == (int)'.') comma = true;
@@ -181,22 +169,22 @@ bool checkXmlVersion(FILE* filePointer, xml_t* xml){
     xml -> version = (char*)malloc(sizeof(char)*(size+1));
     if(!xml -> version){
         fclose(filePointer);
-        destroy(&xml);
-        ERROR_ALLOCATION;
+        destroyXml(&xml);
+        ERROR_ALLOCATION_XML;
     }
     strcpy(xml -> version, string2); 
     return true;
 }
 
-//  Vérifier le type du document "xml"
+//  Vérifier le type du document "XML"
 bool checkXmlXML(FILE* filePointer){
     if(!filePointer) return false;
-    char string[characterStringSize];
+    char string[4] = {0};
     fgets(string, 4, filePointer);
     if(strcmp(string,"xml")) return false;
     int character = fgetc(filePointer);
     if(character != (int)' ' && character != (int)'\n' && character != (int)'\t') return false;
-    errorLineFile;
+    errorLineXmlFile;
     return true;
 }
 
@@ -234,15 +222,20 @@ xml_t* xmlAllocation(){
 // ***************************************************************
 // ********************Fonctions Principales**********************
 
-//  Fontion principale de traitement d'un élément (vérification et récupération)
-bool check_element(FILE* filePointer, xml_t** xml, xmlElement_t** element, int depth){
+// return false -> fichier non ouvert ou erreur du format (elle libere xml et toutes les autres memoires)
+// return true -> si element == NULL fin de lecture
+//             -> si element != NULL element lu
+// exit si une erreur d'allocation est survenue
+
+//  Fontion principale de traitement d'un élément XML (vérification et récupération)
+bool checkXmlElement(FILE* filePointer, xml_t** xml, xmlElement_t** element, int depth){
     if(!filePointer) return false;
     if(fgetc(filePointer)== EOF) return true;
     else{
         fseek(filePointer, -1, SEEK_CUR);
     }
     if(fgetc(filePointer)!= (int)'<'){
-        fseek(filePointer, -1, SEEK_CUR);
+        fseek(filePointer, -1, SEEK_CUR); // a verifier si il faut l'enlever
         return false;
     }
     if(fgetc(filePointer)== (int)'/'){
@@ -251,35 +244,31 @@ bool check_element(FILE* filePointer, xml_t** xml, xmlElement_t** element, int d
         return true;
     }
     fseek(filePointer, -1, SEEK_CUR);
-    (*element) = xmlElementAllocation(filePointer, xml);
+    (*element) = xmlElementAllocation();
     if(!(*element)){
         fclose(filePointer);
-        destroy(xml);
-        ERROR_ALLOCATION;
+        destroyXml(xml);
+        ERROR_ALLOCATION_XML;
     }
-    char* name = (char*)NULL;
     bool FormatError = false;
-    if(!checkElementName(filePointer, &name, &FormatError)){
+    if(!checkXmlElementName(filePointer, &((*element) -> name), &FormatError)){
         if(FormatError) return false;
         fclose(filePointer);
-        if((*xml) -> firstXmlElement != (*element)) destroyElements(*element);
-        destroy(xml);
-        ERROR_ALLOCATION;
+        if((*xml) -> firstXmlElement != (*element)) destroyXmlElements(*element);
+        destroyXml(xml);
+        ERROR_ALLOCATION_XML;
     }
-    char* data = (char*)NULL;
     int size = 0;
-    if(!checkXmlElementData(filePointer, &data, &size)){
+    if(!checkXmlElementData(filePointer, &((*element) -> data), &size)){
         fclose(filePointer);
-        free(name);
-        if((*xml) -> firstXmlElement != (*element)) destroyElements(*element);
-        destroy(xml);
-        ERROR_ALLOCATION;
+        free((*element) -> name);
+        if((*xml) -> firstXmlElement != (*element)) destroyXmlElements(*element);
+        destroyXml(xml);
+        ERROR_ALLOCATION_XML;
     }
-    (*element) -> name = name;
-    (*element) -> data = data;
-    if(data && size){
+    if(((*element) -> data) && size){
         (*element) -> elementType = PCDATA_TYPE;
-        if(!checkClosingTag(filePointer, (*element) -> name = name, strlen((*element) -> name = name))){
+        if(!checkXmlElementClosingTag(filePointer, (*element) -> name, strlen((*element) -> name))){
             free((*element) -> data );
             free((*element) -> name );
             free(*element);
@@ -290,59 +279,62 @@ bool check_element(FILE* filePointer, xml_t** xml, xmlElement_t** element, int d
         (*element) -> elementType = SUBELEMENT_TYPE;
         if(depth == 0){
             xmlElement_t* subXmlElement = (xmlElement_t*)NULL;
-            if(!check_element(filePointer, xml, &subXmlElement, 1)) return false;
+            if(!checkXmlElement(filePointer, xml, &subXmlElement, 1)) return false;
             while(subXmlElement){
                 addSubXmlElementToXmlElement(*element, subXmlElement);
                 subXmlElement = (xmlElement_t*)NULL;
-                if(!check_element(filePointer, xml, &subXmlElement, 1)) return false;
+                if(!checkXmlElement(filePointer, xml, &subXmlElement, 1)) return false;
             }
         }
-        if(!checkClosingTag(filePointer, (*element) -> name , strlen((*element) -> name))){   
-            destroyElements((*element));
+        if(!checkXmlElementClosingTag(filePointer, (*element) -> name , strlen((*element) -> name))){   
+            destroyXmlElements((*element));
             *element = (xmlElement_t*)NULL;
             return false;
         }
     }   
-    skipSpacesTabsLinesBreak;
+    skipSpacesTabsLinesBreakXml;
     return true;
 }
 
 /*  Fonction principale qui appelle toutes les autres fonctions pour 
-vérifier et sauvegarder un fichier xml dans la structure */
+vérifier et sauvegarder un fichier XML dans la structure */
 xml_t* checkXml(FILE* filePointer){
-    if(!filePointer) return false;
-    xml_t* xml_v = xmlAllocation(filePointer);
+    if(!filePointer) return NULL;
+    xml_t* xml_v = NULL;
+    xml_v = xmlAllocation(filePointer);
     if(!xml_v){
         fclose(filePointer);
-        ERROR_ALLOCATION;
+        ERROR_ALLOCATION_XML;
     }
     xml_t** xml = &xml_v;
     bool noError = true;
     if(!noError || !fgetc(filePointer) == (int)'<' || !fgetc(filePointer) == (int)'?') noError = false;
     if(!noError || !checkXmlXML(filePointer)) noError = false;
-    skipSpacesTabsLinesBreak;
+    skipSpacesTabsLinesBreakXml;
     if(!noError || !checkXmlVersion(filePointer, *xml)) noError = false;
-    skipSpacesTabsLinesBreak;
+    skipSpacesTabsLinesBreakXml;
     if(!noError || !fgetc(filePointer) == (int)'?' || !fgetc(filePointer) == (int)'>') noError = false;
-    skipSpacesTabsLinesBreak;
-    if(!noError || !check_element(filePointer, xml, &((*xml) -> firstXmlElement), 0)) noError = false;
+    skipSpacesTabsLinesBreakXml;
+    if(!noError || !checkXmlElement(filePointer, xml, &((*xml) -> firstXmlElement), 0)) noError = false;
+    
     xmlElement_t* itterator = (*xml) -> firstXmlElement;
     int character, character2;
     if(itterator) xml_v -> elementsNumber ++;
     while(noError && itterator && (character = fgetc(filePointer))!=(int)'>' && (character2 = fgetc(filePointer))!=EOF){
         fseek(filePointer, -2, SEEK_CUR);
         itterator = (xmlElement_t*)NULL;
-        skipSpacesTabsLinesBreak;
-        if(!noError || !check_element(filePointer, xml, &itterator, 0)) noError = false;
+        skipSpacesTabsLinesBreakXml;
+        if(!noError || !checkXmlElement(filePointer, xml, &itterator, 0)) noError = false;
         addNextXmlElementToXmlElement((*xml) -> firstXmlElement, itterator);
-        xml_v -> elementsNumber ++;
-        skipSpacesTabsLinesBreak;
+        xml_v -> elementsNumber++;
+        skipSpacesTabsLinesBreakXml;
     }
     if(character2 == EOF && (character != (int)'>' && character != EOF)) noError = false;
     else if(character == (int)'>' && character2 != EOF) noError = false;
+  
     if(!noError){
-        errorLineFilePrint;
-        destroy(xml);
+        errorLineXmlFilePrint;
+        destroyXml(xml);
         return (xml_t*)NULL;
     }
     return xml_v;
@@ -353,8 +345,8 @@ xml_t* checkXml(FILE* filePointer){
 // ***************************************************************
 // *********************Fonction d'affichage**********************
 
-// Affichage de la structure (pour débuguer)
-void xmlPrint(xml_t* xml){
+// Affichage des données XML dans la structure (pour débuguer)
+void printXml(xml_t* xml){
     if(!xml)return;
     printf("Version : %s\n", xml -> version);
     printf("Elements number : %d\n\n", xml -> elementsNumber);

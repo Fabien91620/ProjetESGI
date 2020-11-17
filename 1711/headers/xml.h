@@ -6,16 +6,16 @@
 #include <stdbool.h>
 #include <string.h>
 
-#define ERROR_ALLOCATION {printf("Erreur lors de l'allocation mémoire.\nLe programme va s'arreter.\n");exit(1);}
-#define characterStringSize 100
-#define skipSpaces skip(filePointer, (int)' ')
-#define skipTabs skip(filePointer, (int)'\t')
-#define skipLinesBreak skip(filePointer, (int)'\n')
-#define skipSpacesTabsLinesBreak skip(filePointer, (int)'*')
+#define ERROR_ALLOCATION_XML {printf("Erreur lors de l'allocation mémoire.\nLe programme va s'arreter.\n");exit(1);}
+#define characterStringSizeXml 100
+#define skipSpacesXml skip(filePointer, (int)' ')
+#define skipTabsXml skip(filePointer, (int)'\t')
+#define skipLinesBreakXml skip(filePointer, (int)'\n')
+#define skipSpacesTabsLinesBreakXml skip(filePointer, (int)'*')
 
 //  Caluculateur de la ligne d'érreur en cas d'érreur dans le fichier
-#define errorLineFile {if(character==(int)'\n') LineXmlFile++;}
-#define errorLineFilePrint {printf("Le format du fichier est incorrect.\nErreur à la ligne : N°%d\n", LineXmlFile);}
+#define errorLineXmlFile {if(character==(int)'\n') LineXmlFile++;}
+#define errorLineXmlFilePrint {printf("Erreur dans le fichier XML à la ligne : N°%d\n", LineXmlFile);}
 
 
 // ***************************************************************
@@ -32,9 +32,9 @@ struct xmlElement{
 		SUBELEMENT_TYPE          //	Un autre élément pourra servir de type
 	}elementType;
     char* data;                  //	Si l'élément est de type PCDATA
-    int childrenNumber;	         //	Si l'élément est de type SUBELEMENT si toujours 0
+    int childrenNumber;	         //	Si l'élément est de type SUBELEMENT si non 0
     xmlElement_t* subXmlElement; //	Si l'élément est de type SUBELEMENT si non NULL
-    xmlElement_t* nextElement;
+    xmlElement_t* nextElement;   // L'élément suivant
 };
 
 //  XML
@@ -49,9 +49,9 @@ struct xml{
 // ***************************************************************
 // **************************Fonctions****************************
 
-xml_t* checkXml(FILE* filePointer); // Fonction principale
-void destroy(xml_t** xml);          // Libération de mémoire
-void xmlPrint(xml_t* xml); // Affichage d'un xml
+xml_t* checkXml(FILE* filePointer);     // Fonction principale (vérification et enregistrement dans la structure)
+void destroyXml(xml_t** xml);           // Libération de mémoire
+void printXml(xml_t* xml);              // Affichage des données de la structure du xml
 
 
 #endif
