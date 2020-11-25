@@ -1,0 +1,8 @@
+<!DOCTYPE ESGI [
+<!ELEMENT classrooms (classroom*)>
+<!ELEMENT classroom (#PCDATA)>
+<!ATTLIST classroom hakim CDATA "baleu">
+
+<!ELEMENT classro (#PCDATA)>
+<!ATTLIST classro ha CDATA "baleu">
+]>
