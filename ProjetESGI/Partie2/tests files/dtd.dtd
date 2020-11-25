@@ -1,4 +1,0 @@
-<!DOCTYPE ESGI [
-<!ATTLIST classrooms hakim CDATA >
-<!ELEMENT classrooms (#PCDATA)>
-]>

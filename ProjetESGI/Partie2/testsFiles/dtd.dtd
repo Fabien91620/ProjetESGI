@@ -1,0 +1,5 @@
+<!DOCTYPE ESGI [
+<!ELEMENT classrooms (classroom*)>
+<!ELEMENT classroom (#PCDATA)>
+<!ATTLIST classroom taille CDATA "20">
+]>

@@ -2,7 +2,7 @@
 CC = gcc
 CFLAGS = -Wall -Werror
 DEBUG_FLAGS = valgrind
-EXEC = XML-DTD-validator.exe
+EXEC = XML-DTD-validator-P1.exe
 SRC =  $(wildcard definitions/*.c headers/*.h)
 OBJ = $(SRC:.c=.o)
 

@@ -1,0 +1,7 @@
+<?xml version="1"?>
+
+<classrooms>
+	<classroom taille="36">JAUNE</classroom>	
+	<classroom taille="26">BLEU</classroom>
+	<classroom taille="10">ROUGE</classroom>
+</classrooms>
